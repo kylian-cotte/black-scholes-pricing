@@ -6,13 +6,14 @@ variable compte. C'est ce qui fait la différence avec une simple
 lecture de la formule : on voit le comportement du modèle.
 
 Lancement :  python visualisations.py
-Produit :    prix_vs_sousjacent.png, prix_vs_volatilite.png, time_decay.png
+Produit :    prix_vs_sousjacent.png, prix_vs_volatilite.png, time_decay.png,
+             greeks.png
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-from black_scholes import call_price, put_price
+from black_scholes import call_price, put_price, delta, gamma
 
 # Style sobre, lisible
 plt.rcParams.update({
@@ -79,9 +80,45 @@ def graphe_time_decay():
     plt.close()
 
 
+def graphe_greeks():
+    """Delta et Gamma du call selon le prix de l'action.
+
+    Deux axes y partagés :
+      - Delta (0 -> 1) : la sensibilité de l'option au prix de l'action.
+        Loin sous le strike il est proche de 0 (l'option ne réagit presque
+        pas), loin au-dessus il est proche de 1 (l'option suit l'action
+        comme si on la détenait).
+      - Gamma : la vitesse à laquelle le delta change. Il culmine autour du
+        strike, là où l'option est la plus "nerveuse".
+    """
+    S = np.linspace(50, 150, 300)
+    deltas = [delta(s, K, T, r, sigma) for s in S]
+    gammas = [gamma(s, K, T, r, sigma) for s in S]
+
+    fig, ax1 = plt.subplots()
+
+    ax1.plot(S, deltas, color="steelblue", linewidth=2, label="Delta")
+    ax1.set_xlabel("Prix du sous-jacent (€)")
+    ax1.set_ylabel("Delta", color="steelblue")
+    ax1.tick_params(axis="y", labelcolor="steelblue")
+    ax1.axvline(K, color="grey", linestyle="--", alpha=0.6)
+
+    ax2 = ax1.twinx()
+    ax2.plot(S, gammas, color="darkorange", linewidth=2, label="Gamma")
+    ax2.set_ylabel("Gamma", color="darkorange")
+    ax2.tick_params(axis="y", labelcolor="darkorange")
+    ax2.grid(False)
+
+    plt.title("Delta et Gamma du call selon le prix de l'action")
+    fig.tight_layout()
+    plt.savefig("greeks.png", dpi=130)
+    plt.close()
+
+
 if __name__ == "__main__":
     graphe_prix_vs_sousjacent()
     graphe_prix_vs_volatilite()
     graphe_time_decay()
-    print("3 graphiques générés : prix_vs_sousjacent.png, "
-          "prix_vs_volatilite.png, time_decay.png")
+    graphe_greeks()
+    print("4 graphiques générés : prix_vs_sousjacent.png, "
+          "prix_vs_volatilite.png, time_decay.png, greeks.png")

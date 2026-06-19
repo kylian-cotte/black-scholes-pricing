@@ -23,7 +23,7 @@ plt.rcParams.update({
     "font.size": 11,
 })
 
-K, T, r, sigma = 100, 1.0, 0.03, 0.20
+K, T, r, sigma = 100, 1.0, 0.05, 0.20
 
 
 def graphe_prix_vs_sousjacent():
